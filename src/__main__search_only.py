@@ -48,14 +48,18 @@ if __name__ == '__main__':
 
 
 #     f_name	= '2011-02-20-01:52:19.fil'
-     f_name    = 'BJ0009_02551.fil'
-#     f_name    = '1.fil'
 #     f_dir	= '/data0/FRB_Parkes_data/FRB110220/'    
 #     f_name    = 'data_2017-08-30_17-35-36.fil'
 #     f_name    = 'fake_test.fil'
+#     f_name    = 'BJ0009_02551.fil'
+     f_name	= 'FRB110626.fil'
+     f_name	= 'FRB010621.fil'
+     f_name	= 'FRB110220.fil'
+#     f_name	= 'PM0141_017A1.fil'
+#     f_name    = '1.fil'
      f_dir     = '../data/'
      plot_dir  = '../graph/' + f_name[:-4] + '/'
-     plot_proc = '2ndFFT_3D,polar_sets_3D,,1stFFT,rebin'
+     plot_proc = '2ndFFT_3D,polar_sets_2D,polar_sets_3D,raw,1stFFT,rebin'
      # Plot_proc: list  processes we  want to plot.
 
      if comm_rank == 0:
@@ -63,7 +67,9 @@ if __name__ == '__main__':
                 print 'directory build complete!'
      comm.barrier()
 
-     t_len     = 96*200	#time length for each smallest unit to process.
+     t_len     = 10240	#time length for each smallest unit to process.
+     DM_range  = [800,1000]	#Min and Max DM
+     Wp	       = 5.7		#Wp means pulse width in (ms)
      nbin      = 0
      ang_min   = 0	#range of angle in polar transform :minum value.
      ang_max   = 90	#range of angle in polar transform :max value.
@@ -79,7 +85,7 @@ if __name__ == '__main__':
      time_1    = time.time()
 
      if comm_rank == 0:	 print 'Begin to load data from ' + f_name 
-     f, num, p_n, freq, t_rsl, t_len, nbin ,nch= read_data(f_dir, f_name ,t_len, nbin, comm_size)
+     fil, num, p_n, freq, t_rsl, t_len, nbin ,nch, T,fy,angle,N_ang,L_fft = read_data(f_dir, f_name ,t_len, nbin, comm_size,DM_range)
      
 ###################
 #Begin to search  #
@@ -87,8 +93,8 @@ if __name__ == '__main__':
      time_s = time.time()
      for  i_ch in range(p_n):  #i_chunk 
 	     t_p    = comm_rank*p_n   #the thread position in total time in unit(chunk)
-	     data   = f.readBlock(t_len*(i_ch+t_p),t_len)
-	#     data[871:,:]=0
+	     data   = fil.readBlock(t_len*(i_ch+t_p),t_len)
+#	     data[:220,:]=0
 	     data   = np.nan_to_num(data)
 	     t_ch_s = t_len*(i_ch+t_p)*t_rsl   #time of chunck start.
 	     t_ch_e = t_len*(i_ch+t_p+1)*t_rsl 
@@ -96,35 +102,39 @@ if __name__ == '__main__':
 	     
 	     if comm_rank == 0:    print 'Begin to rebin... '
 
-	     data, f_axis ,fy =  rebin(data, freq, nbin,t_axis)
+	     re_data, f_axis  =  rebin(data, fy, nbin,t_axis)
 	
 	     if comm_rank == 0:    print 'Rebin over. \nBegin to do 1st 2-D FFT on rebin data...'
 	
-	     data = FFT(data, 2, msk_cycle=0)
-	
+	     FFT1st_data = FFT(L_fft,re_data, 2, msk_cycle=0)
+
 	     if comm_rank == 0:    print '1st FFT over.\nBegin to transform rectangular coordinates into polar coordinates...'
 	
-	     data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( data, ang_min ,ang_max )
+	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, angle )
 	
 	     if comm_rank == 0:    print 'Polar transform over.\nBegin to do the 2nd 1-D FFT along radius direction...'
 	
-	     data = FFT( data, 1 )# 1 means 1 Dimension FFT
+	     FFT2nd_data = FFT(L_fft, polar_data, 1 )# 1 means 1 Dimension FFT
 	
 	     if comm_rank == 0:    print '2nd FFT over.\nBegin to locate the signal and calculate SNR...'
 	
-	     SNR , DM = Signal_finding(data,  ang_min , ang_max, pixel,t_rsl * t_len, nbin, fy)
+	     SNR , DM = Signal_finding(FFT2nd_data,  ang_min , ang_max, pixel, T, nbin, fy)
 	     SNR_l.append(SNR)
 	     DM_l.append(DM)
 	     if comm_rank == 0:    print 'Searching Over. '
 	     time_2  =  time.time()
 	     consume =  time_2 - time_1
 	
-	     if comm_rank == 0:    print '\n\n#############\nProcess matrix size:',nch,' * '+str(t_len) + '\ntime is:', consume ,'seconds,  ','equal',consume/60.,'minutes.\nProcess:',i_ch,' of ',p_n,' for total:',p_n*t_len*comm_size,'samples \nSNR:',SNR,'\n\n###############\n\nBegin to plot...'
+	     if comm_rank == 0:   
+			 print '\n#############'
+			 print 'Process matrix size:',nch,' * '+str(t_len)
+			 print 'Time cost:', consume ,'seconds,  ','equal',consume/60.,'minutes.'
+			 print'Process:',i_ch,' of ',p_n,' for total:',p_n*t_len*comm_size,'samples' 
+			 print 'SNR:',SNR,';DM: ',DM
+			 print '###############\n\nBegin to plot...'
 	
 #	     plot(comm_rank,t_axis,data,re_data,polar_data,FFT1st_data,FFT2nd_data,plot_proc,freq,f_axis,2,rad_rsl,ang_rsl,plot_dir,pixel,ang_min,ang_max,i_ch,p_n)
-
-             if comm_rank == 0:    print 'Plot Over...'
-	
+             if comm_rank == 0:    print 'Plot Over...'	
 #########################################
 # gather the results from all processes #
 #########################################
@@ -154,8 +164,8 @@ if __name__ == '__main__':
                 plt.plot(np.arange(N_cut),combine_SNR,'ro',label='SNR of 2nd FFT in 2-D map')
                 plt.grid()
                 plt.savefig(plot_dir+'SNR')
-              #  plt.show()
-              #  plt.close()
+                plt.show()
+                plt.close()
 
                 N_cut = len(combine_DM)
                 plt.ylabel('Result DM')
@@ -165,7 +175,7 @@ if __name__ == '__main__':
 		plt.plot(lo[0],DM,'ro')
                 plt.grid()
                 plt.savefig(plot_dir + 'DM')
-              #  plt.show()
-              #  plt.close()
+                plt.show()
+                plt.close()
 
        	        print 'plot over.... rank:',comm_rank

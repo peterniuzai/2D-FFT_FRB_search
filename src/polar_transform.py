@@ -6,9 +6,12 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def polar_coordinates_convert(data, ang_min = 5 ,ang_max = 85 ):
+def polar_coordinates_convert(data, angle ):
     #Transform the rectanular coordinates into polar coordinates
     #Take histogram2D method
+	  print angle
+	  ang_min = angle[0]
+	  ang_max = angle[1]
           rang    = data.shape
           ang_rsl = (1./rang[1])*180/np.pi
 #	  ang_rsl =  
@@ -34,16 +37,18 @@ def polar_coordinates_convert(data, ang_min = 5 ,ang_max = 85 ):
 
           return  polar_data,ang_rsl,rad_rsl
 
-def polar_coordinates_convert_inter(data, ang_min = 5 ,ang_max = 85 ):
+def polar_coordinates_convert_inter(data, angle):
 	#Transform the rectanular coordinates into polar coordinates
 	#Take interpolation method
 
 	  rang     = data.shape
-	  
+	  ang_min  = angle[0]
+	  ang_max  = angle[1]
 	  # Make grid for interpolation
-	  ang_rsl  = (1./data.shape[1]/2**0.5)*180/np.pi
+	#  ang_rsl  = (1./data.shape[1]/2**0.5)*180/np.pi
+	  ang_rsl  = (1./data.shape[0]/2**0.5)*180/np.pi
 	  rad_rsl  = 1
-	  rad_grid = np.arange(5,rang[1],rad_rsl)
+	  rad_grid = np.arange(1,rang[1],rad_rsl)
 	  ang_grid = np.arange(ang_min,ang_max,ang_rsl)
 
 	  grid_a,grid_r = np.meshgrid(ang_grid,rad_grid)

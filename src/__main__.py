@@ -55,7 +55,7 @@ if __name__ == '__main__':
      f_name	= 'FRB110626.fil'
      f_name	= 'FRB010621.fil'
      f_name	= 'FRB110220.fil'
-     f_name	= 'PM0141_017A1.fil'
+#     f_name	= 'PM0141_017A1.fil'
 #     f_name    = '1.fil'
      f_dir     = '../data/'
      plot_dir  = '../graph/' + f_name[:-4] + '/'
@@ -67,7 +67,9 @@ if __name__ == '__main__':
                 print 'directory build complete!'
      comm.barrier()
 
-     t_len     = 1024*20	#time length for each smallest unit to process.
+     t_len     = 0#1024*20	#time length for each smallest unit to process.
+     DM_range  = [500,1000]	#Min and Max DM
+     Wp	       = 3		#Wp means pulse width in (ms)
      nbin      = 0
      ang_min   = 0	#range of angle in polar transform :minum value.
      ang_max   = 90	#range of angle in polar transform :max value.
@@ -83,40 +85,41 @@ if __name__ == '__main__':
      time_1    = time.time()
 
      if comm_rank == 0:	 print 'Begin to load data from ' + f_name 
-     f, num, p_n, freq, t_rsl, t_len, nbin ,nch= read_data(f_dir, f_name ,t_len, nbin, comm_size)
+     fil, num, p_n, freq, t_rsl, t_len, nbin ,nch, T,fy,angle,N_Ang,L_fft = read_data(f_dir, f_name ,t_len, nbin, comm_size,DM_range)
      
 ###################
 #Begin to search  #
 ###################
      time_s = time.time()
      for  i_ch in range(p_n):  #i_chunk 
+     #for  i_ch in range(1):  #i_chunk
 	     t_p    = comm_rank*p_n   #the thread position in total time in unit(chunk)
-	     data   = f.readBlock(t_len*(i_ch+t_p),t_len)
+	     data   = fil.readBlock(t_len*(i_ch+t_p),t_len)
 #	     data[:220,:]=0
 	     data   = np.nan_to_num(data)
 	     t_ch_s = t_len*(i_ch+t_p)*t_rsl   #time of chunck start.
 	     t_ch_e = t_len*(i_ch+t_p+1)*t_rsl 
 	     t_axis = np.linspace(t_ch_s,t_ch_e,t_len) 
 	     
-	     if comm_rank == 0:    print 'Begin to rebin... '
+	     if comm_rank == 0:    print 'Load Data Over, Datasize for each chunk:',data.shape,'\nBegin to rebin... '
 
-	     re_data, f_axis ,fy =  rebin(data, freq, nbin,t_axis)
+	     re_data, f_axis  =  rebin(data, fy, nbin,t_axis)
 	
 	     if comm_rank == 0:    print 'Rebin over. \nBegin to do 1st 2-D FFT on rebin data...'
 	
-	     FFT1st_data = FFT(re_data, 2, msk_cycle=0)
+	     FFT1st_data = FFT(L_fft, re_data, 2, msk_cycle=0)
 	
 	     if comm_rank == 0:    print '1st FFT over.\nBegin to transform rectangular coordinates into polar coordinates...'
 	
-	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, ang_min ,ang_max )
+	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, angle )
 	
 	     if comm_rank == 0:    print 'Polar transform over.\nBegin to do the 2nd 1-D FFT along radius direction...'
 	
-	     FFT2nd_data = FFT( polar_data, 1 )# 1 means 1 Dimension FFT
+	     FFT2nd_data = FFT(L_fft, polar_data, 1 )# 1 means 1 Dimension FFT
 	
 	     if comm_rank == 0:    print '2nd FFT over.\nBegin to locate the signal and calculate SNR...'
 	
-	     SNR , DM = Signal_finding(FFT2nd_data,  ang_min , ang_max, pixel,t_rsl * t_len, nbin, fy)
+	     SNR , DM = Signal_finding(FFT2nd_data,  ang_min , ang_max, pixel, T, nbin, fy, DM_range)
 	     SNR_l.append(SNR)
 	     DM_l.append(DM)
 	     if comm_rank == 0:    print 'Searching Over. '

@@ -3,10 +3,9 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 #import gc
 
-def rebin(data,freq, nbin,tx=0):
+def rebin(data,fy, nbin,tx=0):
 #Change the freqency axis to wave squre axis
 #The signal line will become a straight line after this process.
-    fy           = freq**-2
     f_axis       = np.linspace(fy.min(),fy.max(),nbin)
     b_aray,b_edg = np.histogram(fy,bins=nbin)
 #    data	 = np.nan_to_num(data)
@@ -32,10 +31,9 @@ def rebin(data,freq, nbin,tx=0):
 #    del tem,data
 #    gc.collect()
 
-    return data1, f_axis, fy
+    return data1, f_axis
 
-def rebin_inter(data, freq, nbin, t_axis):
-    fy           = freq**-2
+def rebin_inter(data, fy, nbin, t_axis):
     fyy 	 = fy.reshape(-1,1)
     f_axis       = np.linspace(fy.min(),fy.max(),nbin)
     tx		 = t_axis
@@ -54,21 +52,8 @@ def rebin_inter(data, freq, nbin, t_axis):
     #           y_max   =  np.argmax(y_s)
     #           data1[y_max-10:y_max+11,:]=0
 
-    return data1, f_axis, fy
+    return data1, f_axis
 
 
 if __name__ == '__main__':
-
-	freq  = np.load('../data/freq.npy')
-	data  = np.load('../data/filtered_short.npy')
-	if   data.shape[1] == 4:
-	     data = [data[:,0,:]]
-	else:
-	     data = [data]
-        t_sets    = [np.arange(data[0].shape[1])] 
-	re_sets , f_axis ,nbin = rebin(data ,t_sets, freq)
-	print re_sets[0].shape ,len(f_axis)
-        plt.pcolormesh(re_sets[0])
-        plt.colorbar()
-        plt.show()
-        np.save('../data/rebin.npy',re_sets[0])
+	exit()

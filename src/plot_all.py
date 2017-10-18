@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as signal
+'''Plot the internal process with your demand. These could define in plot_proc variable'''
 def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_data,\
          process , freq , f_axis ,  Dim , r_r , a_r ,dir , pixel = 5, ang_min = 5 , ang_max = 85,i_ch=0,p_n=0):
 
