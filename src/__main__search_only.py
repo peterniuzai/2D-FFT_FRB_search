@@ -52,9 +52,9 @@ if __name__ == '__main__':
 #     f_name    = 'data_2017-08-30_17-35-36.fil'
 #     f_name    = 'fake_test.fil'
 #     f_name    = 'BJ0009_02551.fil'
-     f_name	= 'FRB110626.fil'
-     f_name	= 'FRB010621.fil'
-#     f_name	= 'FRB110220.fil'
+#     f_name	= 'FRB110626.fil'
+#     f_name	= 'FRB010621.fil'
+     f_name	= 'FRB110220.fil'
 #     f_name	= 'PM0141_017A1.fil'
 #     f_name    = '1.fil'
      f_dir     = '../data/'
@@ -68,11 +68,11 @@ if __name__ == '__main__':
      comm.barrier()
 
      t_len     = 1024	#time length for each smallest unit to process.
-     DM_range  = [800,1000]	#Min and Max DM
-     Wp	       = 5.7		#Wp means pulse width in (ms)
+     DM_range  = [100,15000]	#Min and Max DM
+     Wp	       = 1		#Wp means pulse width in (ms)
      nbin      = 0
-     ang_min   = 0	#range of angle in polar transform :minum value.
-     ang_max   = 90	#range of angle in polar transform :max value.
+#     ang_min   = 0	#range of angle in polar transform :minum value.
+#     ang_max   = 90	#range of angle in polar transform :max value.
      msk_cycle = 5	#the number of channels to be zeros in 2D-FFT(Noise remove).
      pixel     = 2	#the number of pixel to sum in 2ndFFT3D SNR compute.
      SNR_l     = []
@@ -85,7 +85,7 @@ if __name__ == '__main__':
      time_1    = time.time()
 
      if comm_rank == 0:	 print 'Begin to load data from ' + f_name 
-     fil, num, p_n, freq, t_rsl, t_len, nbin ,nch, T,fy,angle,N_ang,L_fft = read_data(f_dir, f_name ,t_len, nbin, comm_size,DM_range)
+     fil, num, p_n, freq, t_rsl, t_len, nbin ,nch, T,fy,angle,N_Ang,L_fft = read_data(f_dir, f_name ,t_len, nbin, comm_size,DM_range)
      
 ###################
 #Begin to search  #
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
 	     if comm_rank == 0:    print '1st FFT over.\nBegin to transform rectangular coordinates into polar coordinates...'
 	
-	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, angle )
+	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, angle, N_Ang )
 	
 	     if comm_rank == 0:    print 'Polar transform over.\nBegin to do the 2nd 1-D FFT along radius direction...'
 	
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 	
 	     if comm_rank == 0:    print '2nd FFT over.\nBegin to locate the signal and calculate SNR...'
 	
-	     SNR , DM = Signal_finding(FFT2nd_data,  ang_min , ang_max, pixel, T, nbin, fy)
+	     SNR , DM = Signal_finding(FFT2nd_data,  angle, pixel, T, nbin, fy)
 	     SNR_l.append(SNR)
 	     DM_l.append(DM)
 	     if comm_rank == 0:    print 'Searching Over. '
@@ -134,7 +134,7 @@ if __name__ == '__main__':
 			 print '###############\n\nBegin to plot...'
 	
 #	     plot(comm_rank,t_axis,data,re_data,polar_data,FFT1st_data,FFT2nd_data,plot_proc,freq,f_axis,2,rad_rsl,ang_rsl,plot_dir,pixel,angle,i_ch,p_n)
-             if comm_rank == 0:    print 'Plot Over...'	
+             if comm_rank == 0:    print 'Plot Over...\n\n'	
 #########################################
 # gather the results from all processes #
 #########################################

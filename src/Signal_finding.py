@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import sys,os,time
 import scipy.signal as signal
 from DM_calculate import DM_calculate
-def Signal_finding(data, ang_min = 5,ang_max = 85, pixel=2, T=0, nbin=0, fy=0, DM_range=[0,1500]):
+def Signal_finding(data,angle , pixel=2, T=0, nbin=0, fy=0, DM_range=[0,1500]):
+	 ang_min = angle[0]
+	 ang_max = angle[1]
          deg   = np.linspace(ang_min,ang_max,data.shape[1])
          data  = abs(data)
          lo    = np.where(data == np.max(data))

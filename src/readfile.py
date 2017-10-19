@@ -52,7 +52,7 @@ def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[100,1500],Wp=3)
 
 	 L_fft	= length_calculate(fy,t_rsl ,DM_range,nbin,Wp, FFT_rs)
 	 part	= (angle[1]-angle[0])/90.
-	 N_Ang	= L_fft*np.pi*2 / Ang_rs*part
+	 N_Ang	= L_fft*np.pi*2*part / Ang_rs
 	 ang_rsl_n = (angle[1]-angle[0])/((1./t_len/2**0.5)*180/np.pi)
 	 print 'Angle:', angle
 	 print 'L_fft:', L_fft
@@ -60,7 +60,7 @@ def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[100,1500],Wp=3)
 	 print 'Ang_rs', Ang_rs
 	 print 'N_Ang',	 N_Ang
 	 print 'ang_rsl_n',ang_rsl_n
-         #exit() 
+#         exit() 
 	 
 	# rad_grid  =  1         #radius resolutiongrid size for interpolate in polar-coordin transform.
      	# ang_grid  = (1./2**0.5/data.shape[1])*180/np.pi   #angle resolution for interpolate in polar-coordin transform.

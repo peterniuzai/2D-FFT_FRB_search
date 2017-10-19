@@ -59,7 +59,7 @@ if __name__ == '__main__':
 #     f_name    = '1.fil'
      f_dir     = '../data/'
      plot_dir  = '../graph/' + f_name[:-4] + '/'
-     plot_proc = '2ndFFT_3D,polar_sets_2D,polar_sets_3D,raw,1stFFT,rebin'
+     plot_proc = '2ndFFT_3D,polar_sets_3D,raw,1stFFT'
      # Plot_proc: list  processes we  want to plot.
 
      if comm_rank == 0:
@@ -68,11 +68,11 @@ if __name__ == '__main__':
      comm.barrier()
 
      t_len     = 1024	#time length for each smallest unit to process.
-     DM_range  = [600,1000]	#Min and Max DM
-     Wp	       = 3		#Wp means pulse width in (ms)
+     DM_range  = [200,1500]	#Min and Max DM
+     Wp	       = 1		#Wp means pulse width in (ms)
      nbin      = 0
-     ang_min   = 0	#range of angle in polar transform :minum value.
-     ang_max   = 90	#range of angle in polar transform :max value.
+#     ang_min  	#range of angle in polar transform :minum value.
+#     ang_max   #range of angle in polar transform :max value.
      msk_cycle = 5	#the number of channels to be zeros in 2D-FFT(Noise remove).
      pixel     = 2	#the number of pixel to sum in 2ndFFT3D SNR compute.
      SNR_l     = []
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 	
 	     if comm_rank == 0:    print '1st FFT over.\nBegin to transform rectangular coordinates into polar coordinates...'
 	
-	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, angle )
+	     polar_data,ang_rsl,rad_rsl  = polar_coordinates_convert_inter( FFT1st_data, angle, N_Ang)
 	
 	     if comm_rank == 0:    print 'Polar transform over.\nBegin to do the 2nd 1-D FFT along radius direction...'
 	
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 	
 	     if comm_rank == 0:    print '2nd FFT over.\nBegin to locate the signal and calculate SNR...'
 	
-	     SNR , DM = Signal_finding(FFT2nd_data,  ang_min , ang_max, pixel, T, nbin, fy, DM_range)
+	     SNR , DM = Signal_finding(FFT2nd_data,  angle , pixel, T, nbin, fy, DM_range)
 	     SNR_l.append(SNR)
 	     DM_l.append(DM)
 	     if comm_rank == 0:    print 'Searching Over. '
