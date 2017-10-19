@@ -54,7 +54,7 @@ if __name__ == '__main__':
 #     f_name    = 'BJ0009_02551.fil'
      f_name	= 'FRB110626.fil'
      f_name	= 'FRB010621.fil'
-     f_name	= 'FRB110220.fil'
+#     f_name	= 'FRB110220.fil'
 #     f_name	= 'PM0141_017A1.fil'
 #     f_name    = '1.fil'
      f_dir     = '../data/'
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                 print 'directory build complete!'
      comm.barrier()
 
-     t_len     = 10240	#time length for each smallest unit to process.
+     t_len     = 1024	#time length for each smallest unit to process.
      DM_range  = [800,1000]	#Min and Max DM
      Wp	       = 5.7		#Wp means pulse width in (ms)
      nbin      = 0
@@ -94,7 +94,7 @@ if __name__ == '__main__':
      for  i_ch in range(p_n):  #i_chunk 
 	     t_p    = comm_rank*p_n   #the thread position in total time in unit(chunk)
 	     data   = fil.readBlock(t_len*(i_ch+t_p),t_len)
-#	     data[:220,:]=0
+	     data[:220,:]=0
 	     data   = np.nan_to_num(data)
 	     t_ch_s = t_len*(i_ch+t_p)*t_rsl   #time of chunck start.
 	     t_ch_e = t_len*(i_ch+t_p+1)*t_rsl 
@@ -133,7 +133,7 @@ if __name__ == '__main__':
 			 print 'SNR:',SNR,';DM: ',DM
 			 print '###############\n\nBegin to plot...'
 	
-#	     plot(comm_rank,t_axis,data,re_data,polar_data,FFT1st_data,FFT2nd_data,plot_proc,freq,f_axis,2,rad_rsl,ang_rsl,plot_dir,pixel,ang_min,ang_max,i_ch,p_n)
+#	     plot(comm_rank,t_axis,data,re_data,polar_data,FFT1st_data,FFT2nd_data,plot_proc,freq,f_axis,2,rad_rsl,ang_rsl,plot_dir,pixel,angle,i_ch,p_n)
              if comm_rank == 0:    print 'Plot Over...'	
 #########################################
 # gather the results from all processes #

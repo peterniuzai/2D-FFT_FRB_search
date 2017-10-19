@@ -6,7 +6,7 @@ from DM_calculate import length_calculate
 #import readGBT
 #import pyfits
 #import h5py
-def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[200,500],Wp=3):
+def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[100,1500],Wp=3):
 
 #load data,chunked them to data sets with shape :nbin * t_length (Default got from DM range). Wp means pulse width in (ms).
 
@@ -21,16 +21,20 @@ def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[200,500],Wp=3):
 	 t_de	= time_delay(DM_range,fbot,ftop)
          #print t_de,'ms'
 	 t_gulp	= round(t_de / t_rsl)
-         if t_len != 0:
-		 t_len	= t_len
-	 else:
-		 t_len	= t_gulp
+
 	 if nbin != 0:
 		 nbin = nbin
 	 else:
-		 nbin = nch
+		 nbin = 2**(int(np.log2(nch)))
+
+         if t_len != 0:
+                 t_len  = t_len
+         else:
+                 t_len  = nbin
+
 	 freq	= np.linspace(ftop,fbot,nch)
 	 fy	= freq**-2
+
 #Multi processors parameter
          num    = int(nsamp/t_len)  #Total number of chunks to process 
          p_n    = int(num/comm_size) #Number of chunks for each thread to process
@@ -40,16 +44,12 @@ def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[200,500],Wp=3):
 	 Ang_rs	= ((nbin**2 + t_len**2)**-0.5)/FFT_rs #Angle resolution constraind by signal line length
 	 Rad_rs	= 1
          angle	= angle_range(fy,DM_range,nbin,T)
-	 #print angle
-	 #print Ang_rs
-	 #print t_len
-	 #exit()
 	 
 	 if int(Wp/t_rsl) == 0:
 		Wp = 1
 	 else:
 		Wp = int(Wp/t_rsl) 
-	 #print Wp
+
 	 L_fft	= length_calculate(fy,t_rsl ,DM_range,nbin,Wp, FFT_rs)
 	 part	= (angle[1]-angle[0])/90.
 	 N_Ang	= L_fft*np.pi*2 / Ang_rs*part
