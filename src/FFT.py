@@ -6,9 +6,10 @@ def FFT(L_fft,data, Dim = 2 , msk_cycle = 0):
            data   = np.fft.rfft2(data,norm = 'ortho')
 #           data  =  shift[1:shift.shape[0]/2+1,shift.shape[1]/2:]#oringinal
 #	   data	  = data[1:data.shape[0]/2+1,data.shape[1]/2:data.shape[1]/2+data.shape[0]/2]
-	   data	  = data[int(-L_fft/2**0.5):,:L_fft/2**0.5]
-           data[-1, :] = 0
-           data[ :, 0] = 0
+	   data	  = data[int(-L_fft/(2**0.5)):,:int(L_fft/(2**0.5))]
+           data[-1, 1:] = 0
+           data[ :-1, 0] = 0
+	   data[-1,0]=0
 #	   if msk_cycle >0:
 #           	for i in np.arange(msk_cycle):
 #              	 	x_sum   =  np.abs(data[-100:,:]).sum(axis = 0)
@@ -37,5 +38,4 @@ if __name__ == '__main__':
         else:
              data = [data]
         re_sets  = FFT(data, 2 , msk_cycle)
-        print re_sets[0].shape 
 

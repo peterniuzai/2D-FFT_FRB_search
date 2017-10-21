@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 #import gc
 
 def rebin(data,fy, nbin,tx=0):
@@ -33,26 +34,21 @@ def rebin(data,fy, nbin,tx=0):
 
     return data1, f_axis
 
-def rebin_inter(data, fy, nbin, t_axis):
-    fyy 	 = fy.reshape(-1,1)
-    f_axis       = np.linspace(fy.min(),fy.max(),nbin)
-    tx		 = t_axis
-    data    	 = data.reshape(-1)
+def rebin_inter(data, fy, nbin, tx):
+    f		 = np.linspace(fy.min(),fy.max(),nbin)
+#    b_aray,b_edg = np.histogram(fy,bins=nbin)
+    b_aray 	= fy
+    data	 = interp1d(b_aray,data,axis=0)
+    n	= np.arange(20)
+    data	 = data(f)
+#    exit()
 #begin to interpolate the data
-    c    = np.broadcast_arrays(fyy,tx) #create the coordinates of the grid, the c[0].shape = c[1].shape = [4096,2048]
-    f    = c[0].reshape(-1)
-    t    = c[1].reshape(-1)
-    d    = np.nan_to_num(data)
-    points         = (f,t)
-    grid_f, grid_t = np.mgrid[f.min():f.max():nbin*1j, t.min():t.max():nbin*1j]
-    data1          = griddata(points,d,(grid_f,grid_t),method='nearest')
-    data1          = np.nan_to_num(data1)
     #for i in np.arange(5):
     #           y_s     =  data1.sum( axis = 1 )
     #           y_max   =  np.argmax(y_s)
     #           data1[y_max-10:y_max+11,:]=0
 
-    return data1, f_axis
+    return data, f
 
 
 if __name__ == '__main__':

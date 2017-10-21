@@ -55,11 +55,14 @@ if __name__ == '__main__':
     fbot   = hdr['fbottom']
     nch    = hdr['nchans']
     t_rsl  = hdr['tsamp']*1000. # unit (ms)
-    freq   = np.linspace(ftop,fbot,nch)
+    t_rsl  = 250/1000.
+    #freq   = np.linspace(ftoap,fbot,nch)
+    freq   = np.linspace(1450,1050,4096)
     fy     = freq**-2
     nbin   = nch
     T	   = nch*t_rsl
-    Nsamp  = time_delay(DM_range,fbot,ftop)/t_rsl    
+    Nsamp  = time_delay(DM_range,1050,1450)/1000.
+    print Nsamp    
 #    dm = DM_calculate(fy,ang,nbin,T)
 #    degree = angle_range(fy,DM,nbin,t_rsl * 30746)
 #    print 'the DM is : ',dm ,'pc*cm^-3'

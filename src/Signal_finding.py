@@ -17,14 +17,15 @@ def Signal_finding(data,angle , pixel=2, T=0, nbin=0, fy=0, DM_range=[0,1500]):
          snr   = (d_max - data.mean())/data.std()
 	 angle_2ndFFT = deg[lo[1][0]]
 	 DM = DM_calculate(fy,abs(angle_2ndFFT),nbin,T)
-	 if snr > 8 and DM_range[1] > DM > DM_range[0]:
+#	 if snr > 7 and 1000 > DM > 600:
+	 if snr > 7 and DM_range[1] > DM > DM_range[0]:
 		snr	= snr
 		DM	= DM
 	 else:
 		snr	= 0
 		DM	= 0
 	  
-    	 return snr , DM
+    	 return snr , DM , angle_2ndFFT
 
 if __name__ == '__main__':
         ang_min = -90

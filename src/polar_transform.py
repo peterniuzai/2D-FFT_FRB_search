@@ -51,12 +51,12 @@ def polar_coordinates_convert_inter(data, angle,N_Ang):
 	  rad_rsl  = 1
 	  ang_rsl  = (ang_max-ang_min)/N_Ang
 	  rad_grid = np.arange(1,rang[1],rad_rsl)
-	  ang_grid = np.arange(ang_min,ang_max,ang_rsl)
-#	  ang_grid = np.linspace(ang_min,ang_max,N_Ang)
+#	  ang_grid = np.arange(ang_min,ang_max,ang_rsl)
+	  ang_grid = np.linspace(ang_min,ang_max,N_Ang)
 
 	  grid_a,grid_r = np.meshgrid(ang_grid,rad_grid)
-	  x_p      = grid_r * np.cos(grid_a*np.pi/180)
-	  y_p      = rang[0]-grid_r * np.sin(grid_a*np.pi/180)-1
+	  x_p     = grid_r * np.cos(grid_a*np.pi/180.)
+	  y_p     = rang[0]-grid_r * np.sin(grid_a*np.pi/180.)
 	  x_p     = x_p.reshape(-1)
 	  y_p     = y_p.reshape(-1)
 	  cord    = [y_p,x_p]
