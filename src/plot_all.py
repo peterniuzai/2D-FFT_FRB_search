@@ -82,7 +82,6 @@ def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_d
 #                max   = mean + 2 * sigma
 #                min   = mean - 2 * sigma
                 seq   = comm_rank * p_n + i_ch
-#                SNR   = (data.max()-data.mean())/data.std()
                 x_axis  = np.linspace(ang_min,ang_max,data.shape[1])
                 y_axis  = np.arange(data.shape[0])
                 plt.pcolormesh(x_axis,y_axis,data)#,vmax = max,vmin = min)
@@ -112,11 +111,11 @@ def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_d
                 #Filter the profile of the FRB signal
 #                prof_data = signal.medfilt(data,199)
 #                data      = data - prof_data
-                SNR       = (data.max()-data.mean())/data.std()
+                snr_2D  = np.nan_to_num((data.max()-data.mean())/data.std())
                 dmax =  np.argmax(data)
                 cord =  (x_axis[dmax] ,data[dmax])
                 plt.plot([cord[0]],[data[dmax]],'ro')
-                plt.figtext(0.08,0.98,'SNR:'+str(SNR))
+                plt.figtext(0.08,0.98,'SNR:'+str(snr_2D))
 #                plt.title('polar Sum along radius axis(grid size:'+ str(r_r)+'*'+str(a_r)+')')
 		plt.title('polar Sum along radius axis(Angle found:'+str(int(A_f))+')')
                 plt.xlabel('Angle(in degree)')
@@ -155,11 +154,10 @@ def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_d
 #                       y_max  = ind[0][0]
 #                       if y_max  ==  data.shape[0]/2 or y_max == data.shape[0]/2 + 1:
 #                          data[ind] = 0
-                ind  = np.where(data == data.max())
+                ind	= np.where(data == data.max())
                 x_axis  = np.linspace(ang_min,ang_max,data.shape[1])
-                deg   = x_axis[(ind[1][0])]
+                deg	= x_axis[(ind[1][0])]
 		y_ax	= (ind[0][0]-data.shape[0]/2)
-
                 y_axis  = np.arange(-data.shape[0]/2,data.shape[0]/2)
                 plt.pcolormesh(x_axis,y_axis,data)#,vmax = max,vmin = min)
                 plt.title('2nd FFT along radius axis(Angle found:'+str(int(A_f))+')')
@@ -167,8 +165,7 @@ def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_d
                 plt.ylabel('Radius after FFT')
                 plt.xlim(x_axis.min(),x_axis.max())
                 plt.ylim(y_axis.min(),y_axis.max())
-		
-                plt.figtext(0.08,0.98,'SNR:'+ str(int(SNR))+'DM:'+str(int(DM)) + ' Location: ' + str(int(deg)) + 'y_axis:'+str(y_ax))
+                plt.figtext(0.08,0.98,'SNR:'+ str(int(SNR))+'DM:'+str(int(DM)) + ' Location: ' + str(int(deg)) + ', y_axis:'+str(y_ax))
                 plt.colorbar()
                 p_dir = dir + '2ndFFT_3D/'
                 plt.savefig(p_dir +'2ndFFT_3D_' + str(seq) )
@@ -184,7 +181,7 @@ def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_d
                 #Filter the profile of the FRB signal
 #                prof_data = signal.medfilt(data,199)
 #                data      = data - prof_data
-                SNR       = (data.max()-data.mean())/data.std()
+                SNR_2nd_2D	= np.nan_to_num((data.max()-data.mean())/data.std())
                 dmax =  np.argmax(data)
                 cord =  (x_axis[dmax] ,data[dmax])
                 plt.plot([cord[0]],[data[dmax]],'ro')
@@ -199,7 +196,7 @@ def plot(comm_rank,t_axis , data , re_data , polar_data , FFT1st_data , FFT2nd_d
                 plt.grid()
                 plt.xlim(x_axis.min(),x_axis.max())
                 plt.ylim(data.min()-10,data.max()+10)
-                plt.figtext(0.08,0.98,'SNR:'+str(SNR)+'Angle found:'+str(int(A_f)))
+                plt.figtext(0.08,0.98,'SNR:'+str(SNR_2nd_2D)+'Angle found:'+str(int(A_f)))
                 plt.plot(x_axis,data)
                 p_dir = dir + '2ndFFT_2D/'
                 plt.savefig(p_dir + '2ndFFT_2D_' + str(seq))

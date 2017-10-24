@@ -37,34 +37,34 @@ def polar_coordinates_convert(data, angle ):
 
           return  polar_data,ang_rsl,rad_rsl
 
-def polar_coordinates_convert_inter(data, angle,N_Ang):
+def polar_coordinates_convert_inter(data, angle,Ang_rs):
 	#Transform the rectanular coordinates into polar coordinates
 	#Take interpolation method
 
 	  rang     = data.shape
 	  ang_min  = angle[0]
 	  ang_max  = angle[1]
+#	  ang_min  = 0
+#	  ang_max  = 90
 	  # Make grid for interpolation
-	#  ang_rsl  = (1./data.shape[1]/2**0.5)*180/np.pi
-	#  ang_rsl  = (1./data.shape[0]/2**0.5)*180/np.pi
-	
+	  ang_rsl  = Ang_rs
 	  rad_rsl  = 1
-	  ang_rsl  = (ang_max-ang_min)/N_Ang
 	  rad_grid = np.arange(1,rang[1],rad_rsl)
-#	  ang_grid = np.arange(ang_min,ang_max,ang_rsl)
-	  ang_grid = np.linspace(ang_min,ang_max,N_Ang)
+	  ang_grid = np.arange(ang_min,ang_max,ang_rsl)
 
 	  grid_a,grid_r = np.meshgrid(ang_grid,rad_grid)
-	  x_p     = grid_r * np.cos(grid_a*np.pi/180.)
-	  y_p     = rang[0]-grid_r * np.sin(grid_a*np.pi/180.)
+	  x_p     = grid_r * np.cos(grid_a*np.pi/180.) 
+	  y_p     = rang[0] - grid_r * np.sin(grid_a*np.pi/180.) 
 	  x_p     = x_p.reshape(-1)
 	  y_p     = y_p.reshape(-1)
 	  cord    = [y_p,x_p]
-	  polar_matrix_r  = ndimage.map_coordinates(np.real(data),cord,order=1)
-	  polar_matrix_i  = ndimage.map_coordinates(np.imag(data),cord,order=1)
+	  polar_matrix_r  = ndimage.map_coordinates(np.real(data),cord,order=0)
+	  polar_matrix_i  = ndimage.map_coordinates(np.imag(data),cord,order=0)
 	  polar_data    = polar_matrix_r+polar_matrix_i*1j
  	  polar_data    = polar_data.reshape(grid_r.shape)
-	  return polar_data,ang_rsl,rad_rsl
+
+
+	  return polar_data
 
 
 if __name__ == '__main__':

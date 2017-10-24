@@ -14,11 +14,15 @@ def Signal_finding(data,angle , pixel=2, T=0, nbin=0, fy=0, DM_range=[0,1500]):
 #             for j in np.arange(-pixel,pixel):
 #                d_max += data[lo[0][0]+i,lo[1][0]+j]
          #print data.max(),data.min(),data.std(),'*/*/*/*/*/'
-         snr   = (d_max - data.mean())/data.std()
+         snr   = np.nan_to_num((d_max - data.mean())/data.std())
+#	 print data.std(),snr,d_max,data.mean()
+#	 exit()
 	 angle_2ndFFT = deg[lo[1][0]]
 	 DM = DM_calculate(fy,abs(angle_2ndFFT),nbin,T)
-#	 if snr > 7 and 1000 > DM > 600:
-	 if snr > 7 and DM_range[1] > DM > DM_range[0]:
+#	 print DM
+	
+#	 if snr > 7 and 20000 > DM > 100:
+	 if snr > 5 and DM_range[1] > DM > DM_range[0]:
 		snr	= snr
 		DM	= DM
 	 else:

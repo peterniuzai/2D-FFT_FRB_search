@@ -46,9 +46,8 @@ def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[100,1500],Wp=3,
 	 Ang_rs	= ((nbin**2 + t_len**2)**-0.5)/FFT_rs #Angle resolution constraind by signal line length
 	 Rad_rs	= 1
          angle	= angle_range(fy,DM_range,nbin,T)
-	 if ang[0]!=0 and ang[1] !=0:
+	 if (ang[0] != 0) or (ang[1] !=0):
 		angle = ang
-		 
 
 	 if int(Wp/t_rsl) == 0:
 		Wp = 1
@@ -57,21 +56,23 @@ def read_data(f_dir, f_name, t_len, nbin, comm_size=10,DM_range=[100,1500],Wp=3,
 
 	 L_fft	= length_calculate(fy,t_rsl ,DM_range,nbin,Wp, FFT_rs)
 	 part	= (angle[1]-angle[0])/90.
-	 N_Ang	= L_fft*np.pi*2*part / Ang_rs
-	 ang_rsl_n = (angle[1]-angle[0])/((1./t_len/2**0.5)*180/np.pi)
-	# N_Ang	= ang_rsl_n
-	 print 'Angle:', angle
-	 print 'L_fft:', L_fft
-	 print 'Rad_rs', Rad_rs
-	 print 'Ang_rs', Ang_rs
-	 print 'N_Ang',	 N_Ang
-	 print 'ang_rsl_n',ang_rsl_n
-	 print angle
-      #   exit() 
+	 t_gulp = round(t_gulp/t_len)+1
+	 ang_rs = (2**0.5/L_fft)*180/np.pi
+ 
+         print 'Angle:', angle
+         print 'L_fft:', L_fft
+         print 'Rad_rs', Rad_rs
+         print 'Width resolution:Ang_rs', Ang_rs
+         print 'Matrix Ang resoulution',ang_rs
+
+	 if Ang_rs > ang_rs :
+		Ang_rs = ang_rs
+		print 'Using matrix angle resolution..'
 	 
-	# rad_grid  =  1         #radius resolutiongrid size for interpolate in polar-coordin transform.
-     	# ang_grid  = (1./2**0.5/data.shape[1])*180/np.pi   #angle resolution for interpolate in polar-coordin transform.
-         return fil, num, p_n, freq, t_rsl, t_len, nbin, nch , T , fy,angle,N_Ang, L_fft
+	# Radius resolutiongrid size for interpolate in polar-coordin transform.
+     	# Angle resolution for interpolate in polar-coordin transform.
+	
+         return fil, num, p_n, freq, t_rsl, t_len, nbin, nch , T , fy,angle, Ang_rs,Rad_rs, L_fft,t_gulp
 
 if   __name__ == '__main__':
      f_dir  = '../data/'
