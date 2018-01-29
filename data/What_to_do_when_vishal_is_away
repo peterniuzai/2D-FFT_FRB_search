@@ -1,0 +1,96 @@
+/************ Number 1 *************/
+
+#To get all the pulsar software to work
+> source /home/vishal/.bashrc
+# To dedisperse to the DM of the pulsar
+> dedisperse clean1_data.fil -d 26.7 -o clean1_data.tim
+# To search for periodic signal
+> seek clean1_data.tim
+# This command will generate multiple files with extensions .top .prd, then run following to get best
+# candidate
+
+> best clean1_data.prd 
+
+# This should show the period of the pulsar as one of the candidate
+# Following is an example of the output from best
+*******************************************
+File: clean1_data.prd
+ Folds: 1-           5
+ 1-D DM search...
+           1  DM group(s).          186  candidates
+ DM range:   0.00000000       26.7000008      pc/cc
+ Zapping integer+non-integer harmonics...
+    P (ms)      S/N    DM   DMID NIDs f    P/Ptop    Ptop/P                                
+ 235.38326190   34.2    26.7 0001 0006 2    1.0000    1.0000
+  89.99997524   16.4    26.7 0001 0006 3    0.3824    2.6154
+ 320.00005521   11.8    26.7 0001 0005 5    1.3595    0.7356
+6000.47915501    8.2    26.7 0001 0001 5   25.4924    0.0392
+5000.02622916    8.0    26.7 0001 0001 4   21.2421    0.0471
+********************************************
+
+/************ Number 2 ************/
+
+# To fold the pulsar with known DM and period 
+> prepfold -psr B0329+54 clean1_data.fil
+# This should generate a plot of SNR vs DM, pulse phase vs time, pulse phase vs frequency
+
+
+/************* Number 3 ***********/
+# To fold it with slightly better period generated using TEMPO and polycos
+> tempo -z tz.in 
+# Input range of MJDs around the MJD of the date of observations. 
+# For a given filterbank file MJD, look at the header of the filterbank file
+> header clean1_data.fil -mjd
+# Use this MJD and subtract one and add two to get the full range 
+# For example for MJD of 59679, use following range with tempo -z tz.in
+> 59678 59681
+# This will generate polyco.dat file which has range of periods between the given MJD range specially estimated for 
+# our telescope. 
+# This file can be used with the sigproc's fold command to fold the dedisperse time series .tim file
+
+> fold -p polyco.dat clean1_data.tim > clean1_data.prof
+
+# The .prof file is an ascii file which can be plotted using the GNUPLOT following way. 
+
+> gnuplot
+> pl 'clean1_data.prof' u 1:2 w l
+
+# If there is a pulse, you can see that in the final folded profile
+
+========================================================
+To plot the filterbank files....simple 
+
+> python /data0/programs/FilPlot.py clean1_data.fil 0 1000
+
+# This will produce a 2d plot of the section of filterbank file starting with zero sample with total 
+# 1000 samples. 
+
+========================================================
+To use DSPSR to DD and fold the file.... advanced
+
+> dspsr -D 26.7  -P polyco.dat -O dspsr_output clean1_data.fil 
+
+#To view the folded profile use following command
+
+> psrplot -p F dspsr_output.ar 
+
+# If there is RFI use following command to remove RFI
+
+> paz -r -e paz dspsr_output.ar 
+
+# Above command will generate a file with extension '.paz'
+# If you want to remove more RFI use interactive tool to manually select RFI channels
+
+> pazi dspsr_output.ar
+
+# Press F to get the frequency vs phase plot
+# Left click to zoom and Right click to remove frequency channels
+# Press S to save with extension .pazi
+# Redo plotting with psrplot and save in ps file
+
+> psrplot -p F -j "D, F 128" -D outplot.ps/cps dspsr_output.ar.pazi
+
+
+========================================================
+To search for pulses, contact Chenhui
+

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib as mpl
-mpl.use('Agg')
+#mpl.use('Agg')
 import matplotlib.pyplot as plt
 import sys,os,time
 #import readGBT
@@ -50,7 +50,8 @@ if __name__ == '__main__':
 #     f_name	= '2011-02-20-01:52:19.fil'
 #     f_dir	= '/data0/FRB_Parkes_data/FRB110220/'    
 #     f_name    = 'data_2017-08-30_17-35-36.fil'
-     f_name    = 'fake_test.fil'
+     f_name    = 'fake_test.fil' 
+     f_name    = 'out.fil'
 #     f_name    = 'BJ0009_02551.fil'
 #     f_name	= 'FRB110626.fil'
 #     f_name	= 'FRB010621.fil'
@@ -59,8 +60,8 @@ if __name__ == '__main__':
 #     f_name    = '1.fil'
      f_dir     = '../data/'
      plot_dir  = '../graph/' + f_name[:-4] + '/'
-#     plot_proc = '2ndFFT_3D,polar_sets_3D,1stFFT,raw,rebin,polar_sets_2D,2ndFFT_2D'
-     plot_proc = '2ndFFT_3D, polar_sets_3D,raw'
+     plot_proc = '2ndFFT_3D,polar_sets_3D,1stFFT,raw,rebin,polar_sets_2D,2ndFFT_2D'
+#     plot_proc = '3ndFFT_3D, polar_sets_3D,raw'
      # Plot_proc: list  processes we  want to plot.
 
      if comm_rank == 0:
@@ -69,10 +70,10 @@ if __name__ == '__main__':
      comm.barrier()
 
      t_len     = 0	#time length for each smallest unit to process.
-     DM_range  = [100,6000]	#Min and Max DM
-     Wp	       = 50		#Wp means pulse width in (ms)
+     DM_range  = [20,300]	#Min and Max DM
+     Wp	       = 10		#Wp means pulse width in (ms)
      nbin      = 0
-     ang       = [0,0] #Angle range for search
+     ang       = [2,89] #Angle range for search
      msk_cycle = 5	#the number of channels to be zeros in 2D-FFT(Noise remove).
      pixel     = 2	#the number of pixel to sum in 2ndFFT3D SNR compute.
      SNR_l     = []
@@ -167,7 +168,7 @@ if __name__ == '__main__':
                 plt.plot(np.arange(N_cut),combine_SNR,'ro',label='SNR of 2nd FFT in 2-D map')
                 plt.grid()
                 plt.savefig(plot_dir+'SNR')
-  #              plt.show()
+                plt.show()
                 plt.close()
 
                 N_cut = len(combine_DM)
@@ -178,7 +179,7 @@ if __name__ == '__main__':
 		plt.plot(lo[0],DM,'ro')
                 plt.grid()
                 plt.savefig(plot_dir + 'DM')
- #               plt.show()
+                plt.show()
                 plt.close()
 
        	        print 'plot over.... rank:',comm_rank
