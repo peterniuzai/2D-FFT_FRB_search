@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import sys,os,time
+import scipy.signal as signal
+from DM_calculate import DM_calculate
+def Signal_finding(data,angle , pixel=2, T=0, nbin=0, fy=0, DM_range=[0,1500]):
+	 ang_min = angle[0]
+	 ang_max = angle[1]
+         deg   = np.linspace(ang_min,ang_max,data.shape[1])
+         data  = abs(data)
+         lo    = np.where(data == np.max(data))
+         d_max = data.max()
+         for i in np.arange(-pixel,pixel):
+             for j in np.arange(-pixel,pixel):
+		if lo[0][0]+i < data.shape[0] and lo[1][0]+j< data.shape[1]:
+	                d_max += data[lo[0][0]+i,lo[1][0]+j]
+         snr   = (d_max - data.mean())/data.std()
+	 angle_2ndFFT = deg[lo[1][0]]
+	 DM = DM_calculate(fy,abs(angle_2ndFFT),nbin,T)
+#	 print DM
+	
+#	 if snr > 7 and 20000 > DM > 100:
+	 if snr > 5 and DM_range[1] > DM > DM_range[0]:
+		snr	= snr
+		DM	= DM
+	 else:
+		snr	= 0
+		DM	= 0
+	  
+    	 return snr , DM , angle_2ndFFT
+
+if __name__ == '__main__':
+        ang_min = -90
+        ang_max = 0
+        pixel = 3
+        data  = np.load('/home/ycli/data/burst_data/filtered_short.npy')
+        data  = np.load('/home/nch/plot_raw/wigglez_found/data_pick/0_0.npy')
+        if   data.shape[1] == 4:
+             data = [data[:,0,:]]
+        else:
+             data = [data]
+        SNR , location = Signal_finding(data, pixel)
+        print SNR,location

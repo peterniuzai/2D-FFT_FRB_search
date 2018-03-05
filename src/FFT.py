@@ -3,21 +3,26 @@ import matplotlib.pyplot as plt
 
 def FFT(L_fft,data, Dim = 2 , msk_cycle = 0):
     if Dim == 2:   #1st 2-D FFT
-	   hamming_x	= np.hamming(data.shape[1])
-	   hamming_y	= np.hamming(data.shape[0])
-	   
-	   window	= hamming_y[:,None] * hamming_x[None,:]
-#           data   = np.fft.rfft2(data*window,norm = 'ortho')
+#Window Function
+	   blackman_x    = np.blackman(data.shape[1])
+	   blackman_y    = np.blackman(data.shape[0])
+
+	   window  = blackman_y[:,None] * blackman_x[None,:]
+#	   data   = data*window
 	   data   = np.fft.rfft2(data,norm = 'ortho')
-	   data	  = data[int(-L_fft/(2**0.5)):, 1:int(L_fft/(2**0.5))+1]
-#	   exit()
+#	   data	  = data[int(-L_fft):, 1:int(L_fft)+1]
+           data   = data[data.shape[0]/2-1:,1:data.shape[0]/2+1]
+#	   data   = data[data.shape[0]/2:,:]
+#           data   = data[data.shape[0]/4:, 1:data.shape[0]/4]
+#	   exit(1)
+
+
            data[-1, :] = data.mean()
            data[ :, 0] = data.mean()
-#	   data[-1,0]=0
-#           plt.pcolormesh(abs(data))
-#           plt.colorbar()
-#           plt.show()
-#           exit()
+	   data[-3:,:4] = data.mean()
+
+
+	   #data[-1,0] = 0#data.max()
 #	   if msk_cycle >0:
 #           	for i in np.arange(msk_cycle):
 #              	 	x_sum   =  np.abs(data[-100:,:]).sum(axis = 0)

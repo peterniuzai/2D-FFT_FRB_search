@@ -44,16 +44,44 @@ def polar_coordinates_convert_inter(data, angle,Ang_rs):
 	  rang     = data.shape
 	  ang_min  = angle[0]
 	  ang_max  = angle[1]
-#	  ang_min  = 0
-#	  ang_max  = 90
+	  tan_min  = np.tan(ang_min*np.pi/180)
+	  tan_max  = np.tan(ang_max*np.pi/180)
+	  
 	  # Make grid for interpolation
-	  ang_rsl  = Ang_rs
-	  rad_rsl  = 1
-	  rad_grid = np.arange(1,rang[1],rad_rsl)
-	  ang_grid = np.arange(ang_min,ang_max,ang_rsl)
-
+	#  ang_rsl  = Ang_rs
+	  #ang_rsl  = (1.0/rang[1])/np.pi*180.
+#	  rad_rsl  = 1# 2**0.5
+	  
+#	  rad_grid = np.arange(4,rang[0],rad_rsl)
+#	  n_rad	   = 512*2#round((rang[1]-4.0)/rad_rsl)
+#	  rad_grid = np.linspace(0,rang[0],n_rad)
+          #n_rad    = rang[0]#int(np.sqrt(data.size))
+	  #n_rad	   = 2**(round(np.log2(n_rad)))
+#	  n_deg    = round(np.sqrt(data.size))
+#	  n_deg	   = 2**(round(np.log2(n_deg)))
+#	  n_deg    = 1024
+#	  n_deg	   = int(np.sqrt(data.size))#(ang_max-ang_min)*20
+#	  n_deg	   = round(data.size/1.0/len(rad_grid))
+#	  n_deg    = #len(rad_grid)
+	  n_deg	  = (ang_max-ang_min)*20
+	  n_rad   = int(data.size/n_deg)
+	  n_rad   = 2**(round(np.log2(n_rad)))
+	  n_rad	  = 512*2
+	  rad_grid = np.linspace(1,rang[0]-1,n_rad)
+#	  print "n_rad",n_rad
+	  #exit(1)
+#	  ang_grid = np.linspace(ang_min,ang_max,n_deg)
+          tan_min  = np.tan(ang_min*np.pi/180)
+          tan_max  = np.tan(ang_max*np.pi/180)
+	  tan_grid  = np.linspace(tan_min,tan_max,n_deg)
+	  ang_grid  = np.arctan(tan_grid)/np.pi*180
+	  #print "ang_gird:",ang_grid.min(),ang_grid.max()
+	  #plt.plot(ang_grid)
+	  #plt.grid()
+	  #plt.show()
+	  #exit(1)
 	  grid_a,grid_r = np.meshgrid(ang_grid,rad_grid)
-	  x_p     = grid_r * np.cos(grid_a*np.pi/180.) 
+	  x_p     = grid_r * np.cos(grid_a*np.pi/180.) -1
 	  y_p     = rang[0] - grid_r * np.sin(grid_a*np.pi/180.) 
 	  x_p     = x_p.reshape(-1)
 	  y_p     = y_p.reshape(-1)
@@ -62,6 +90,8 @@ def polar_coordinates_convert_inter(data, angle,Ang_rs):
 	  polar_matrix_i  = ndimage.map_coordinates(np.imag(data),cord,order=0)
 	  polar_data    = polar_matrix_r+polar_matrix_i*1j
  	  polar_data    = polar_data.reshape(grid_r.shape)
+#	  polar_data[:4,:]=0
+	  print polar_data.shape
 
 
 	  return polar_data
